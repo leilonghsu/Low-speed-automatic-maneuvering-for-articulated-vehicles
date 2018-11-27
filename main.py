@@ -8,7 +8,8 @@ img=mpimg.imread('firstedit.png')
 fig,ax = plt.subplots(1)
 imgplot = ax.imshow(img)
 
-car = Vehicle(fig,ax)
+car = Vehicle()
+car.show_random_route(fig,ax)
 
 # to stop plot from closing
 plt.show()
