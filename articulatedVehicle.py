@@ -62,13 +62,14 @@ class ArticulatedVehicle:
         self.headAngle += angle
         radians = np.deg2rad(self.headAngle)
         (x,y) = self.head.xy
-        x1 = vel * math.cos(radians)
-        y1 = vel * math.sin(radians)
-        print(x,y)
+        x1 = self.velocity * math.cos(radians)
+        y1 = self.velocity * math.sin(radians)
+
         x += x1
         y += y1
+
         _x = x + (self.headH*0.5)
-        _y = y + (self.headW)
+        _y = y
         
         self.head.set_xy((x,y))
         t = mpl.transforms.Affine2D().rotate_around(_x,_y,radians) + plt.gca().transData
@@ -79,6 +80,7 @@ class ArticulatedVehicle:
         radians1 = np.deg2rad(self.headAngle)
         gamma = self.headAngle - self.trailerAngle#180 - abs(abs(self.headAngle - self.trailerAngle) - 180)
         angleChange = (self.velocity * math.sin(gamma) - self.headW * g * math.cos(gamma))/(self.headW * math.cos(gamma) + self.trailerW)
+        print(self.velocity)
         print(angleChange)
         print(self.trailerAngle)
         print(self.headAngle)
@@ -89,7 +91,6 @@ class ArticulatedVehicle:
         y2 = y1 - self.headW * math.sin(radians1) - self.trailerW * math.sin(radians2)
 
         _x = x2 + (self.trailerH * 0.5)
-        print(_x)
         _y = y2
 
         print(x2,y2)
