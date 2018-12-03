@@ -21,7 +21,7 @@ class ArticulatedVehicle:
         self.headH = 20
         self.startPointX = 100
         self.startPointY = 200
-        self.lineW = 10
+        self.lineW = 20
         self.lineH = 2
         self.lineA = 0
         self.headAngle = 0
@@ -55,12 +55,17 @@ class ArticulatedVehicle:
     
     def move(self, vel, angle):
         self.__updateHead(vel,angle)
-        self.__updateTrailer(angle)
 
     def __updateHead(self,vel,angle):
         self.velocity += vel
-        self.headAngle += angle
+        #self.headAngle += angle
+        #radians = np.deg2rad(self.headAngle)
+
+        gamma = np.deg2rad(self.headAngle - self.trailerAngle)
+        angleChange = (self.velocity * math.sin(gamma) + self.trailerW * angle)/(self.headW * math.cos(gamma) + self.trailerW)
+        self.headAngle += angleChange
         radians = np.deg2rad(self.headAngle)
+
         (x,y) = self.head.xy
         x1 = self.velocity * math.cos(radians)
         y1 = self.velocity * math.sin(radians)
@@ -74,26 +79,25 @@ class ArticulatedVehicle:
         self.head.set_xy((x,y))
         t = mpl.transforms.Affine2D().rotate_around(_x,_y,radians) + plt.gca().transData
         self.head.set_transform(t)
+        self.__updateTrailer(angle)
 
     def __updateTrailer(self,g):
         (x1,y1) = self.head.xy
         radians1 = np.deg2rad(self.headAngle)
-        gamma = self.headAngle - self.trailerAngle#180 - abs(abs(self.headAngle - self.trailerAngle) - 180)
+        gamma = np.deg2rad(self.headAngle - self.trailerAngle)#180 - abs(abs(self.headAngle - self.trailerAngle) - 180)
         angleChange = (self.velocity * math.sin(gamma) - self.headW * g * math.cos(gamma))/(self.headW * math.cos(gamma) + self.trailerW)
-        print(self.velocity)
+
         print(angleChange)
         print(self.trailerAngle)
         print(self.headAngle)
 
         self.trailerAngle += angleChange
         radians2 = np.deg2rad(self.trailerAngle)
-        x2 = x1 - self.headW * math.cos(radians1) - self.trailerW * math.cos(radians2)
-        y2 = y1 - self.headW * math.sin(radians1) - self.trailerW * math.sin(radians2)
-
+        x2 = x1 - self.lineW * math.cos(radians1) - self.trailerW * math.cos(radians2)
+        y2 = y1 - self.lineW * math.sin(radians1) - self.trailerW * math.sin(radians2)
+        
         _x = x2 + (self.trailerH * 0.5)
         _y = y2
-
-        print(x2,y2)
 
         self.trailer.set_xy((x2,y2))
         t = mpl.transforms.Affine2D().rotate_around(_x,_y,radians2) + plt.gca().transData
