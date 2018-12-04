@@ -24,7 +24,7 @@ class ArticulatedVehicle:
 
         hW = self.headW / 2
         hH = headH / 2
-        tW = self.trailerW
+        tW = self.trailerW 
         tH = trailerH / 2
 
         p0 = [self.startPointX + hW, self.startPointY - hH]
@@ -48,10 +48,6 @@ class ArticulatedVehicle:
 
 
     def __updateHead(self,vel,angle, delta_t):
-        #self.velocity += vel
-        #self.headAngle += angle
-        #radians = np.deg2rad(self.headAngle)
-
         gamma = np.deg2rad(self.headAngle - self.trailerAngle)
         angleChange = (self.velocity * delta_t * math.sin(gamma) + self.trailerW * angle)/(self.headW * math.cos(gamma) + self.trailerW)
         self.headAngle += angleChange
@@ -67,36 +63,34 @@ class ArticulatedVehicle:
         _y = self.startPointY + math.sin(radians) * (x - self.startPointX) + math.cos(radians) * (y - self.startPointY)
         t = np.array([_x,_y])
         newV = np.array([t])
-        for i in range(1,6):
+        for i in range(1,7):
             [x,y] = v[i]
             _x = self.startPointX + math.cos(radians) * (x - self.startPointX) - math.sin(radians) * (y - self.startPointY)
             _y = self.startPointY + math.sin(radians) * (x - self.startPointX) + math.cos(radians) * (y - self.startPointY)
             t = np.array([_x,_y])
-            print(t,v[i])
+            #print(t,v[i])
             newV = np.append(newV, [t], axis=0)
-        self.truck.set_xy(newV)
-        #self.__updateTrailer(angle, delta_t)
+        #self.truck.set_xy(newV)
+        self.__updateTrailer(angle, delta_t, newV)
 
-    #def __updateTrailer(self,g, delta_t):
-    #    (x1,y1) = self.head.xy
-#
-    #    radians1 = np.deg2rad(self.headAngle)
-    #    gamma = np.deg2rad(self.headAngle - self.trailerAngle)#180 - abs(abs(self.headAngle - self.trailerAngle) - 180)
-    #    angleChange = (self.velocity * delta_t * math.sin(gamma) - self.headW * g * math.cos(gamma))/(self.headW * math.cos(gamma) + self.trailerW)
-#
-    #    print("Angle change of trailer: ",angleChange)
-    #    print("Trailer angle: ", self.trailerAngle)
-    #    print("Head angle: ", self.headAngle)
-#
-    #    self.trailerAngle += angleChange
-    #    radians2 = np.deg2rad(self.trailerAngle)
-    #    x2 = x1 - self.lineW * math.cos(radians1) - self.trailerW * math.cos(radians2)
-    #    y2 = y1 - self.lineW * math.sin(radians1) - self.trailerW * math.sin(radians2)
-    #    
-    #    _x = x2 + (self.trailerH * 0.5)
-    #    _y = y2
-#
-    #    self.trailer.set_xy((x2,y2))
-    #    t = mpl.transforms.Affine2D().rotate_around(_x,_y,radians2) + plt.gca().transData
-    #    self.trailer.set_transform(t)
-#
+    def __updateTrailer(self,g, delta_t, newV):
+        v = self.truck.get_xy()
+
+        radians1 = np.deg2rad(self.headAngle)
+        gamma = np.deg2rad(self.headAngle - self.trailerAngle)
+        angleChange = (self.velocity * delta_t * math.sin(gamma) - self.headW * g * math.cos(gamma))/(self.headW * math.cos(gamma) + self.trailerW)
+
+        self.trailerAngle += angleChange
+        radians2 = np.deg2rad(self.trailerAngle)
+
+        x2 = self.startPointX - self.headW/4 * math.cos(radians1) - self.lineW/2 * math.cos(radians2)
+        y2 = self.startPointY - self.headW/4 * math.sin(radians1) - self.lineW/2 * math.sin(radians2)
+
+        for i in range(7,13):
+            [x,y] = v[i]
+            _x = x2 + math.cos(radians2) * (x - self.startPointX) - math.sin(radians2) * (y - self.startPointY)
+            _y = y2 + math.sin(radians2) * (x - self.startPointX) + math.cos(radians2) * (y - self.startPointY)
+            t = np.array([_x,_y])
+            newV = np.append(newV, [t], axis=0)
+        
+        self.truck.set_xy(newV)

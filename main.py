@@ -32,7 +32,7 @@ previous_t = time.time()
 now = time.time()
 delta_t = now - previous_t 
 previous_t = now
-av.move(2,90,delta_t)
+av.move(2,0,delta_t)
 while(True):
     vel = 0#input_float(">>>")
     angle = 0.5#input_float(">>>")
