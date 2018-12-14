@@ -12,11 +12,6 @@ fig,ax = plt.subplots(1)
 imgplot = ax.imshow(img)
 av = ArticulatedVehicle(fig,ax)
 
-v = np.array([[10,10],[50,10]])
-b = np.rot90(v)
-p = patches.Polygon(b, closed=None, fill=None)
-ax.add_patch(p)
-
 
 def input_float(prompt):
     while True:
@@ -30,14 +25,27 @@ def input_float(prompt):
 
 previous_t = time.time()
 now = time.time()
-delta_t = now - previous_t 
+dt = now - previous_t 
 previous_t = now
-av.move(2,0,delta_t)
-while(True):
-    vel = 0#input_float(">>>")
-    angle = 0.5#input_float(">>>")
+av.move(20,1,dt)
+#526
+i = 0
+while(i < 400):
+    i+=1
+    if i < 60:
+        vel = 0#input_float(">>>")
+        angle = -i#input_float(">>>")
+    elif i >= 60 and i < 120:
+        vel = 0
+        angle = i-60
+    else:
+        vel = 0
+        angle = 60
     now = time.time()
-    delta_t = now - previous_t 
+    dt = now - previous_t 
     previous_t = now
-    #av.move(vel,angle,delta_t)
-    plt.pause(.5)
+    av.move(vel,angle,0.1)
+    plt.pause(.0001)
+plt.plot(av.save_hx, av.save_hy, "-r")
+plt.plot(av.save_tx, av.save_ty, "-b")
+plt.show()
