@@ -101,15 +101,15 @@ class ArticulatedVehicle:
         v = self.truckTrailer.get_xy()
         gamma = np.radians(self.headAngle - self.trailerAngle)
         
-        angleChange = -th * ((00.1/self.trailerW)*math.cos(gamma) + 1) - ((self.velocity/self.trailerW) * math.sin(gamma))
+        angleChange = -th * ((1/self.trailerW)*math.cos(gamma) + 1) - ((self.velocity/self.trailerW) * math.sin(gamma))
 
         self.trailerAngle += angleChange
-        theta = np.radians(angleChange)
+        theta = -np.radians(angleChange)
 
 
 
         hTheta = np.radians(self.headAngle)
-        tTheta = np.radians(self.trailerAngle)
+        tTheta = -np.radians(self.trailerAngle)
         self.save_tx.append(self.startPointX - (self.headW/2 * math.cos(hTheta)) - (self.trailerW * math.cos(tTheta)))
         self.save_ty.append(self.startPointY - (self.headW/2 * math.sin(hTheta)) - (self.trailerW * math.sin(tTheta)))
 
