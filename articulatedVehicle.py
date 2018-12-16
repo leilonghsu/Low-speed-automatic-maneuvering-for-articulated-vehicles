@@ -24,17 +24,9 @@ class ArticulatedVehicle:
         self.max_th = 1
         self.save_hx = [self.startPointX]
         self.save_hy = [self.startPointY]
-        self.save_tx = [self.startPointX - (self.headW/2 * math.cos(math.radians(self.headAngle))) - (self.trailerW * math.cos(math.radians(self.trailerAngle)))]
-        self.save_ty = [self.startPointY - (self.headW/2 * math.sin(math.radians(self.headAngle))) - (self.trailerW * math.sin(math.radians(self.trailerAngle)))]
+        self.save_tx = [self.startPointX - (self.headW/2 * math.cos(np.radians(self.headAngle))) - (self.trailerW * math.cos(np.radians(self.trailerAngle)))]
+        self.save_ty = [self.startPointY - (self.headW/2 * math.sin(np.radians(self.headAngle))) - (self.trailerW * math.sin(np.radians(self.trailerAngle)))]
         
-        self.oldTrailerPose = {
-            'x': self.startPointX - (self.headW/2 * math.cos(math.radians(self.headAngle))) - (self.trailerW * math.cos(math.radians(self.trailerAngle))),
-            'y': self.startPointY - (self.headW/2 * math.sin(math.radians(self.headAngle))) - (self.trailerW * math.sin(math.radians(self.trailerAngle))),
-            'theta': self.trailerAngle
-        }
-
-
-
         hW = self.headW / 2
         hH = headH / 2
         tW = self.trailerW 
@@ -85,7 +77,6 @@ class ArticulatedVehicle:
         self.save_hx.append(self.startPointX)
         self.save_hy.append(self.startPointY)
         
-        #print(theta)
 
         points = self.truckHead.get_xy()
         [x,y] = points[0]
@@ -108,39 +99,33 @@ class ArticulatedVehicle:
 
     def __updateTrailer(self,th,oldX,oldY,dt):
         v = self.truckTrailer.get_xy()
-
-        headTheta = np.radians(self.headAngle)
         gamma = np.radians(self.headAngle - self.trailerAngle)
         
-        angleChange = -th * ((1/self.trailerW)*math.cos(gamma) + 1) - ((self.velocity/self.trailerW) * math.sin(gamma))
-        #print(angleChange)
+        angleChange = -th * ((00.1/self.trailerW)*math.cos(gamma) + 1) - ((self.velocity/self.trailerW) * math.sin(gamma))
+
         self.trailerAngle += angleChange
         theta = np.radians(angleChange)
 
-        x2 = self.startPointX# - (self.headW/2 * math.cos(headTheta)) - (self.trailerW * math.cos(theta))
-        y2 = self.startPointY# - (self.headW/2 * math.sin(headTheta)) - (self.trailerW * math.sin(theta))
-        self.save_tx.append(self.startPointX - (self.headW/2 * math.cos(math.radians(self.headAngle))) - (self.trailerW * math.cos(math.radians(self.trailerAngle))))
-        self.save_ty.append(self.startPointY - (self.headW/2 * math.sin(math.radians(self.headAngle))) - (self.trailerW * math.sin(math.radians(self.trailerAngle))))
+
+
+        hTheta = np.radians(self.headAngle)
+        tTheta = np.radians(self.trailerAngle)
+        self.save_tx.append(self.startPointX - (self.headW/2 * math.cos(hTheta)) - (self.trailerW * math.cos(tTheta)))
+        self.save_ty.append(self.startPointY - (self.headW/2 * math.sin(hTheta)) - (self.trailerW * math.sin(tTheta)))
 
         [x,y] = v[0]
-        #_x = x2 + math.cos(theta) * (x - self.oldTrailerPose['x']) - math.sin(theta) * (y - self.oldTrailerPose['y'])
-        #_y = y2 + math.sin(theta) * (x - self.oldTrailerPose['x']) + math.cos(theta) * (y - self.oldTrailerPose['y'])
-        _x = x2 + math.cos(theta) * (x - oldX) - math.sin(theta) * (y - oldY)
-        _y = y2 + math.sin(theta) * (x - oldX) + math.cos(theta) * (y - oldY)
+        _x = self.startPointX + math.cos(theta) * (x - oldX) - math.sin(theta) * (y - oldY)
+        _y = self.startPointY + math.sin(theta) * (x - oldX) + math.cos(theta) * (y - oldY)
         
         t = np.array([_x,_y])
         newV = np.array([t])
 
         for i in range(1,len(v)):
             [x,y] = v[i]
-            #_x = x2 + math.cos(theta) * (x - self.oldTrailerPose['x']) - math.sin(theta) * (y - self.oldTrailerPose['y'])
-            #_y = y2 + math.sin(theta) * (x - self.oldTrailerPose['x']) + math.cos(theta) * (y - self.oldTrailerPose['y'])
-            
-            _x = x2 + math.cos(theta) * (x - oldX) - math.sin(theta) * (y - oldY)
-            _y = y2 + math.sin(theta) * (x - oldX) + math.cos(theta) * (y - oldY)
+
+            _x = self.startPointX + math.cos(theta) * (x - oldX) - math.sin(theta) * (y - oldY)
+            _y = self.startPointY + math.sin(theta) * (x - oldX) + math.cos(theta) * (y - oldY)
             t = np.array([_x,_y])
             newV = np.append(newV, [t], axis=0)
-        self.oldTrailerPose['x'] = x2
-        self.oldTrailerPose['y'] = y2
-        self.oldTrailerPose['theta'] = self.trailerAngle
+
         self.truckTrailer.set_xy(newV)
