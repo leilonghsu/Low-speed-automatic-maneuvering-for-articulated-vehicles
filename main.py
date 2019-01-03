@@ -41,6 +41,7 @@ def start_prm():
 
     plt.plot(rx, ry, "-r")
     plt.show()
+    av.move_on_path(rx, ry)
 
 
 def input_float(prompt):
@@ -82,4 +83,3 @@ plt.plot(av.save_tx, av.save_ty, "-b")
 plt.show()
 
 start_prm()
-

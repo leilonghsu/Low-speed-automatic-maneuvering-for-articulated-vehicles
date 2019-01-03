@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import math
 import numpy as np
 import matplotlib.patches as patches
+import time
+
 
 class ArticulatedVehicle:
 
@@ -129,3 +130,53 @@ class ArticulatedVehicle:
             newV = np.append(newV, [t], axis=0)
 
         self.truckTrailer.set_xy(newV)
+
+    def move_on_path(self, rx, ry):
+        straight_movements = 0  # backward or forward
+        turn_movements = 0  # right or left
+        angle = 0  # TODO
+        vel = 0
+        # TODO implement function in order to move the vehicle on a specific path
+        # TODO changes the random values of angle and vel
+
+        for i in range(len(rx) - 1):
+            if rx[i + 1] > rx[i]:
+                if ry[i + 1] == ry[i]:
+                    # forward move on x
+                    angle = 5
+                    vel = 3
+                    straight_movements += 1
+                else:
+                    # find the new angle for turn
+                    angle = 9
+                    vel = 6
+                    turn_movements += 1
+            elif rx[i + 1] == rx[i]:
+                if ry[i + 1] == ry[i]:
+                    # pointX(i) = pointX(i+1)
+                    continue
+                elif ry[i + 1] > ry[i]:
+                    # forward move on y
+                    angle = 5
+                    vel = 3
+                    straight_movements += 1
+                else:
+                    # backward move on y
+                    angle = 5
+                    vel = 3
+                    straight_movements += 1
+            else:
+                if ry[i + 1] == ry[i]:
+                    # backward move on x
+                    angle = 5
+                    vel = 3
+                    straight_movements += 1
+                else:
+                    # find the new angle for turn   !!!! dangerous case !!!! **** collapse danger
+                    angle = 9
+                    vel = 6
+                    turn_movements += 1
+
+            self.move(vel, angle, 0.1)
+
+        return straight_movements, turn_movements
