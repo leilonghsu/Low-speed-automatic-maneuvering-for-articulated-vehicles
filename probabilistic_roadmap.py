@@ -8,6 +8,14 @@ N_KNN = 10
 MAX_EDGE_LEN = 30.0
 
 
+class Node:
+    def __init__(self, x, y, cost, pind):
+        self.x = x
+        self.y = y
+        self.cost = cost
+        self.pind = pind
+
+
 class KDTree:
     def __init__(self, data):
         self.tree = scipy.spatial.cKDTree(data)
@@ -122,8 +130,54 @@ class PRM:
         return sample_x, sample_y
 
     def dijkstra_phase(self, road_map, sample_x, sample_y):
-        # TODO
-        return True
+        nstart = Node(self.sx, self.sy, 0.0, -1)
+        ngoal = Node(self.gx, self.gy, 0.0, -1)
+
+        openset, closedset = dict(), dict()
+        openset[len(road_map) - 2] = nstart
+
+        while True:
+            if len(openset) == 0:
+                print("Cannot find path")
+                break
+
+            c_id = min(openset, key=lambda o: openset[o].cost)
+            current = openset[c_id]
+
+            if c_id == (len(road_map) - 1):
+                print("goal is found!")
+                ngoal.pind = current.pind
+                ngoal.cost = current.cost
+                break
+
+            del openset[c_id]
+            closedset[c_id] = current
+
+            for i in range(len(road_map[c_id])):
+                n_id = road_map[c_id][i]
+                dx = sample_x[n_id] - current.x
+                dy = sample_y[n_id] - current.y
+                d = math.sqrt(dx ** 2 + dy ** 2)
+                node = Node(sample_x[n_id], sample_y[n_id], current.cost + d, c_id)
+
+                if n_id in closedset:
+                    continue
+                if n_id in openset:
+                    if openset[n_id].cost > node.cost:
+                        openset[n_id].cost = node.cost
+                        openset[n_id].pind = c_id
+                else:
+                    openset[n_id] = node
+
+        rx, ry = [ngoal.x], [ngoal.y]
+        pind = ngoal.pind
+        while pind != -1:
+            n = closedset[pind]
+            rx.append(n.x)
+            ry.append(n.y)
+            pind = n.pind
+
+        return rx, ry
 
     def construction_phase(self):
         obstacles_tree = KDTree(np.vstack((self.ox, self.oy)).T)
