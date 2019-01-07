@@ -12,11 +12,10 @@ class Node:
 
 
 def reconstructPath(cameFrom, current):
-    print("reconstructing from ", current.x,current.y)
+    #print("reconstructing from ", current.x,current.y)
     totalPath = []
     while current in cameFrom.keys():
         current = cameFrom[current]
-        print(current.x,current.y)
         totalPath.append(current)
     return list(reversed(totalPath))
 
@@ -44,8 +43,8 @@ def a_star(start,goal,graph):
             n_id = calc_index(node)
             if n_id in closedNodes:
                 continue
-            #print(graph.shape)
-            if not verify_node(node,graph):#create verify function here #
+
+            if not verify_node(node,graph):
                 continue
             
             node.fscore = node.gscore + calcHeuristic(goal, node)
@@ -88,15 +87,57 @@ def get_motion_model():
 
     return motion
 
-def paint(nodeList):
+def paint(nodeList, c):
     xs = []
     ys = []
     for n in nodeList:
         xs.append(n.x)
         ys.append(n.y)
-    plt.plot(xs,ys,"-r")
+    plt.plot(xs,ys,c)
         
+def improved_astar(start,goal,graph):
+    p = a_star(start,goal,graph)
+    paint(p,"-r")
+    if len(p) > 2:
+        for index, node in enumerate(p):
+            if index <= len(p)-2:
+                i = 2
+                len(p)
+                while True:
+                    if (index+i < len(p)-2):
+                        dtwo = p[index+i]
+                        if verify_line(node,dtwo,graph):
+                            del p[index+i-1]
+                        else:
+                            break
+                        i += 1
+                    else:
+                        break
 
+    return p
+
+def verify_line(startn,endn,graph):
+    if startn.x == endn.x or startn.y == endn.y:
+        return True
+    M = (startn.y-endn.y)/(startn.x-endn.x)
+    B = (startn.x*startn.y - endn.x*startn.y)/(startn.x-endn.x)
+    x = startn.x
+
+    while x < endn.x:
+        y = M*x + B
+        pos = graph[int(-y)][x]
+        if pos[0] == 0:
+            return False    
+        x += 1
+
+    while x > endn.x:
+        y = M*x + B
+        pos = graph[int(-y)][x]
+        if pos[0] == 0:
+            return False
+        x -= 1
+
+    return True
 
 def main():
     graph=mpimg.imread('firstedit.png')
@@ -106,9 +147,8 @@ def main():
     imgplot = ax.imshow(graph)
     goal = Node(1046,30,0,0)
     start = Node(200,480,0,0)
-    nodelist = a_star(start,goal,graph)
-    paint(nodelist)
-    #print(graph[200][200])
+    nodelist = improved_astar(start,goal,graph)
+    paint(nodelist, "-b")
     plt.show()
 
 main()
