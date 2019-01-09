@@ -66,6 +66,7 @@ def calcHeuristic(a, b):
     return abs(a.x - b.x) + abs(a.y - b.y)
 
 def verify_node(node,graph):
+    #check that the vehicle can squeeze through
     pos = graph[node.y][node.x]
     if pos[0] == 1:
         return True
@@ -122,26 +123,27 @@ def verify_line(startn,endn,graph):
     M = (startn.y-endn.y)/(startn.x-endn.x)
     B = (startn.x*startn.y - endn.x*startn.y)/(startn.x-endn.x)
     x = startn.x
-
-    while x < endn.x:
-        y = M*x + B
-        pos = graph[int(-y)][x]
-        if pos[0] == 0:
-            return False    
-        x += 1
-
-    while x > endn.x:
-        y = M*x + B
-        pos = graph[int(-y)][x]
-        if pos[0] == 0:
-            return False
-        x -= 1
+    if x < endn.x:
+        while x < endn.x:
+            y = M*x + B
+            if y < 0:
+                return True
+            pos = graph[int(y)][x]
+            if pos[0] == 0:
+                return False    
+            x += 1
+    else:
+        while x > endn.x:
+            y = M*x + B
+            pos = graph[int(y)][x]
+            if pos[0] == 0:
+                return False
+            x -= 1
 
     return True
 
 def main():
     graph=mpimg.imread('firstedit.png')
-
 
     fig,ax = plt.subplots(1)
     imgplot = ax.imshow(graph)
@@ -149,6 +151,7 @@ def main():
     start = Node(200,480,0,0)
     nodelist = improved_astar(start,goal,graph)
     paint(nodelist, "-b")
+    paint(nodelist,"xc")
     plt.show()
 
 main()
