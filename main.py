@@ -11,7 +11,6 @@ def start_prm():
     # robot_size = 5
     # ox = [1, 1, 1, 4, 4, 8, 8, 8]
     # oy = [3, 4, 5, 1, 2, 4, 5, 6]
-    #draw_plot(sx, sy, gx, gy, ox, oy)
 
     sx = 10.0  # [m]
     sy = 10.0  # [m]
@@ -44,15 +43,23 @@ def start_prm():
     plt.plot(ox, oy, ".k")
     plt.plot(sx, sy, "^r")
     plt.plot(gx, gy, "^c")
+
     plt.grid(True)
 
     prm = PRM(sx, sy, gx, gy, robot_size, ox, oy)
 
     rx, ry = prm.find_path()
+    reversed_rx = rx[::-1]
+    reversed_ry = ry[::-1]
 
     plt.plot(rx, ry, "-r")
     av = ArticulatedVehicle(plt)
-    av.move_on_path(rx, ry)
+    av.move(1, 0, 0.1)
+
+    av.move_on_path(reversed_rx, reversed_ry)
+    #av.move_to_pose(10, 10, 0, 50, 50, 270)
+
+    #print(av.truckHead.get_xy())
 
     plt.show()
 

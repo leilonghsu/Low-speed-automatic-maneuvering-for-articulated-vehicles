@@ -1,6 +1,8 @@
 import math
 import numpy as np
 import matplotlib.patches as patches
+from random import random
+
 
 
 class ArticulatedVehicle:
@@ -134,47 +136,101 @@ class ArticulatedVehicle:
         # TODO implement function in order to move the vehicle on a specific path
         # TODO changes the random values of angle and vel
 
-        for i in range(len(rx) - 1):
-            if rx[i + 1] > rx[i]:
-                if ry[i + 1] == ry[i]:
-                    # forward move on x
-                    angle = 5
-                    vel = 3
-                    straight_movements += 1
-                else:
-                    # find the new angle for turn
-                    angle = 9
-                    vel = 6
-                    turn_movements += 1
-            elif rx[i + 1] == rx[i]:
-                if ry[i + 1] == ry[i]:
-                    # pointX(i) = pointX(i+1)
-                    continue
-                elif ry[i + 1] > ry[i]:
-                    # forward move on y
-                    angle = 5
-                    vel = 3
-                    straight_movements += 1
-                else:
-                    # backward move on y
-                    angle = 5
-                    vel = 3
-                    straight_movements += 1
-            else:
-                if ry[i + 1] == ry[i]:
-                    # backward move on x
-                    angle = 5
-                    vel = 3
-                    straight_movements += 1
-                else:
-                    # find the new angle for turn   !!!! dangerous case !!!! **** collapse danger
-                    angle = 9
-                    vel = 6
-                    turn_movements += 1
+        # for i in range(len(rx) - 1):
+        #     if rx[i + 1] > rx[i]:
+        #         if ry[i + 1] == ry[i]:
+        #             # forward move on x
+        #             angle = 5
+        #             vel = 3
+        #             straight_movements += 1
+        #         else:
+        #             # find the new angle for turn
+        #             angle = 9
+        #             vel = 6
+        #             turn_movements += 1
+        #     elif rx[i + 1] == rx[i]:
+        #         if ry[i + 1] == ry[i]:
+        #             # pointX(i) = pointX(i+1)
+        #             continue
+        #         elif ry[i + 1] > ry[i]:
+        #             # forward move on y
+        #             angle = 5
+        #             vel = 3
+        #             straight_movements += 1
+        #         else:
+        #             # backward move on y
+        #             angle = 5
+        #             vel = 3
+        #             straight_movements += 1
+        #     else:
+        #         if ry[i + 1] == ry[i]:
+        #             # backward move on x
+        #             angle = 5
+        #             vel = 3
+        #             straight_movements += 1
+        #         else:
+        #             # find the new angle for turn   !!!! dangerous case !!!! **** collapse danger
+        #             angle = 9
+        #             vel = 6
+        #             turn_movements += 1
 
-            self.startPointX = rx[i]
-            self.startPointY = ry[i]
-
-            self.move(vel, angle, 0.1)
+        for i in range((len(rx) - 1)):
+            x_start = rx[i]
+            y_start = ry[i]
+            theta_start = 2 * np.pi * random() - np.pi #TODO
+            x_goal = rx[i+1]
+            y_goal = ry[i+1]
+            theta_goal = 2 * np.pi * random() - np.pi #TODO
+            self.move_to_pose(x_start, y_start, theta_start, x_goal, y_goal, theta_goal)
 
         return straight_movements, turn_movements
+
+    def move_to_pose(self, x_start, y_start, theta_start, x_goal, y_goal, theta_goal):
+        Kp_rho = 9
+        Kp_alpha = 15
+        Kp_beta = -3
+        dt = 0.01
+
+        x = x_start
+        y = y_start
+        theta = theta_start
+
+        x_diff = x_goal - x
+        y_diff = y_goal - y
+
+        x_traj, y_traj = [], []
+
+        rho = np.sqrt(x_diff ** 2 + y_diff ** 2)
+        while rho > 0.001:
+            x_traj.append(x)
+            y_traj.append(y)
+
+            x_diff = x_goal - x
+            y_diff = y_goal - y
+
+            rho = np.sqrt(x_diff ** 2 + y_diff ** 2)
+            alpha = (np.arctan2(y_diff, x_diff) -
+                     theta + np.pi) % (2 * np.pi) - np.pi
+            beta = (theta_goal - theta - alpha + np.pi) % (2 * np.pi) - np.pi
+
+            v = Kp_rho * rho
+            w = Kp_alpha * alpha + Kp_beta * beta
+
+            if alpha > np.pi / 2 or alpha < -np.pi / 2:
+                v = -v
+
+            theta = theta + w * dt
+            x = x + v * np.cos(theta) * dt
+            y = y + v * np.sin(theta) * dt
+            #self.redraw_vehicle(x_start, y_start)
+            #self.move(vel, angle, 0.1)
+            self.plt.pause(0.01)
+            print(theta)
+            degrees = np.rad2deg(theta)
+            self.move(0, degrees, 0.1)
+
+    def redraw_vehicle(self, x_start, y_start):
+        #av = ArticulatedVehicle(self.plt)
+        self.startPointX = x_start
+        self.startPointY = y_start
+
