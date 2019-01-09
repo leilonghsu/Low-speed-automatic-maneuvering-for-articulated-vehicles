@@ -12,12 +12,18 @@ class ArticulatedVehicle:
         self.velocity = 0
         self.vx = 0
         self.vy = 0
-        self.trailerW = 6
-        trailerH = 2
-        self.headW = 3
-        headH = 2
-        self.startPointX = 10
-        self.startPointY = 10
+        self.trailerW = 65
+        trailerH = 26
+        self.headW = 30
+        headH = 26
+        self.startPointX = 155
+        self.startPointY = 213
+        #self.trailerW = 6
+        #trailerH = 2
+        #self.headW = 3
+        #headH = 2
+        #self.startPointX = 10
+        #self.startPointY = 10
         self.headAngle = 0
         self.trailerAngle = 0
         self.max_v = 2
@@ -53,8 +59,9 @@ class ArticulatedVehicle:
     def move(self, vel, angle, dt):
         self.__updateHead(vel, angle, dt)
 
+
     def __updateHead(self, vel, angle, dt):
-        self.velocity += vel
+        self.velocity = vel
 
         angleChange = self.velocity / self.headW * math.tan(np.radians(angle))
         self.headAngle += angleChange
@@ -95,6 +102,7 @@ class ArticulatedVehicle:
 
         self.truckHead.set_xy(newPoints)
         self.__updateTrailer(angleChange, oldX, oldY, dt)
+        print(self.headAngle)
 
     def __updateTrailer(self, th, oldX, oldY, dt):
         v = self.truckTrailer.get_xy()
@@ -133,47 +141,6 @@ class ArticulatedVehicle:
         turn_movements = 0  # right or left
         angle = 0  # TODO
         vel = 0
-        # TODO implement function in order to move the vehicle on a specific path
-        # TODO changes the random values of angle and vel
-
-        # for i in range(len(rx) - 1):
-        #     if rx[i + 1] > rx[i]:
-        #         if ry[i + 1] == ry[i]:
-        #             # forward move on x
-        #             angle = 5
-        #             vel = 3
-        #             straight_movements += 1
-        #         else:
-        #             # find the new angle for turn
-        #             angle = 9
-        #             vel = 6
-        #             turn_movements += 1
-        #     elif rx[i + 1] == rx[i]:
-        #         if ry[i + 1] == ry[i]:
-        #             # pointX(i) = pointX(i+1)
-        #             continue
-        #         elif ry[i + 1] > ry[i]:
-        #             # forward move on y
-        #             angle = 5
-        #             vel = 3
-        #             straight_movements += 1
-        #         else:
-        #             # backward move on y
-        #             angle = 5
-        #             vel = 3
-        #             straight_movements += 1
-        #     else:
-        #         if ry[i + 1] == ry[i]:
-        #             # backward move on x
-        #             angle = 5
-        #             vel = 3
-        #             straight_movements += 1
-        #         else:
-        #             # find the new angle for turn   !!!! dangerous case !!!! **** collapse danger
-        #             angle = 9
-        #             vel = 6
-        #             turn_movements += 1
-
         for i in range((len(rx) - 1)):
             x_start = rx[i]
             y_start = ry[i]
@@ -186,9 +153,9 @@ class ArticulatedVehicle:
         return straight_movements, turn_movements
 
     def move_to_pose(self, x_start, y_start, theta_start, x_goal, y_goal, theta_goal):
-        Kp_rho = 9
-        Kp_alpha = 15
-        Kp_beta = -3
+        Kp_rho = 2
+        Kp_alpha = 30
+        Kp_beta = -5
         dt = 0.01
 
         x = x_start
@@ -222,12 +189,10 @@ class ArticulatedVehicle:
             theta = theta + w * dt
             x = x + v * np.cos(theta) * dt
             y = y + v * np.sin(theta) * dt
-            #self.redraw_vehicle(x_start, y_start)
-            #self.move(vel, angle, 0.1)
             self.plt.pause(0.01)
-            print(theta)
             degrees = np.rad2deg(theta)
-            self.move(0, degrees, 0.1)
+            self.move(v, degrees, dt)
+        return x_traj,y_traj
 
     def redraw_vehicle(self, x_start, y_start):
         #av = ArticulatedVehicle(self.plt)

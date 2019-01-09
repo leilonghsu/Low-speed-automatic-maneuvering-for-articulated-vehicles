@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import math
 from operator import attrgetter
+from articulatedVehicle import ArticulatedVehicle
+import time
+
 class Node:
     def __init__(self, x, y,gscore, fscore):
         self.x = x
@@ -144,14 +147,40 @@ def verify_line(startn,endn,graph):
 
 def main():
     graph=mpimg.imread('firstedit.png')
-
     fig,ax = plt.subplots(1)
     imgplot = ax.imshow(graph)
+    av = ArticulatedVehicle(plt)
     goal = Node(1046,30,0,0)
     start = Node(200,480,0,0)
-    nodelist = improved_astar(start,goal,graph)
-    paint(nodelist, "-b")
-    paint(nodelist,"xc")
+    #nodelist = improved_astar(start,goal,graph)
+    #paint(nodelist, "-b")
+    #paint(nodelist,"xc")
+    previous_t = time.time()
+    now = time.time()
+    dt = now - previous_t 
+    previous_t = now
+    #av.move(20,1,dt)
+    ##526
+    i = 0
+    #while(i < 400):
+    #    i+=1
+    #    if i < 60:
+    #        vel = 20#input_float(">>>")
+    #        angle = -i#input_float(">>>")
+    #    elif i >= 60 and i < 120:
+    #        vel = 20
+    #        angle = i-60
+    #    else:
+    #        vel = 20
+    #        angle = 60
+    #    now = time.time()
+    #    dt = now - previous_t 
+    #    previous_t = now
+    #    av.move(vel,angle,0.1)
+    #    plt.pause(.0001)
+    
+    xs,ys = av.move_to_pose(av.startPointX, av.startPointY, 0, av.startPointX+200, av.startPointY+50, 0)
+    plt.plot(xs,ys,"--b")
     plt.show()
 
 main()
