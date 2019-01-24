@@ -107,6 +107,7 @@ def main():
     goal = Node(1046,30,0,0)
     start = Node(200,480,0,0)
     nodelist = a_star(start,goal,graph)
+    print(len(nodelist))
     paint(nodelist)
     #print(graph[200][200])
     plt.show()
