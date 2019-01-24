@@ -16,8 +16,8 @@ class ArticulatedVehicle:
         trailerH = 26
         self.headW = 30
         headH = 26
-        self.startPointX = 155
-        self.startPointY = 213
+        self.startPointX = 200
+        self.startPointY = 480
         #self.trailerW = 6
         #trailerH = 2
         #self.headW = 3

@@ -70,12 +70,16 @@ def calcHeuristic(a, b):
 
 def verify_node(node,graph):
     #check that the vehicle can squeeze through
-    pos = graph[node.y][node.x]
-    if pos[0] == 1:
-        return True
-    else:
-        return False
-
+    for i in range(16):
+        pos1 = graph[node.y+i][node.x+i]
+        pos2 = graph[node.y-i][node.x-i]
+        pos3 = graph[node.y][node.x-i]
+        pos4 = graph[node.y][node.x+i]
+        pos5 = graph[node.y-i][node.x]
+        pos6 = graph[node.y+i][node.x]
+        if pos1[0] == 0 or pos2[0] == 0 or pos3[0] == 0 or pos4[0] == 0 or pos5[0] == 0 or pos6[0] == 0:
+            return False
+    return True
 
 
 def get_motion_model():
@@ -131,19 +135,38 @@ def verify_line(startn,endn,graph):
             y = M*x + B
             if y < 0:
                 return True
-            pos = graph[int(y)][x]
-            if pos[0] == 0:
-                return False    
+            for i in range(16):
+                pos1 = graph[int(y)+i][x+i]
+                pos2 = graph[int(y)-i][x-i]
+                pos3 = graph[int(y)][x-i]
+                pos4 = graph[int(y)][x+i]
+                pos5 = graph[int(y)-i][x]
+                pos6 = graph[int(y)+i][x]
+                if pos1[0] == 0 or pos2[0] == 0 or pos3[0] == 0 or pos4[0] == 0 or pos5[0] == 0 or pos6[0] == 0:
+                    return False  
             x += 1
     else:
         while x > endn.x:
             y = M*x + B
-            pos = graph[int(y)][x]
-            if pos[0] == 0:
-                return False
+            for i in range(16):
+                pos1 = graph[int(y)+i][x+i]
+                pos2 = graph[int(y)-i][x-i]
+                pos3 = graph[int(y)][x-i]
+                pos4 = graph[int(y)][x+i]
+                pos5 = graph[int(y)-i][x]
+                pos6 = graph[int(y)+i][x]
+                if pos1[0] == 0 or pos2[0] == 0 or pos3[0] == 0 or pos4[0] == 0 or pos5[0] == 0 or pos6[0] == 0:
+                    return False
             x -= 1
 
     return True
+
+def input_float(prompt):
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print('That is not a valid number.')
 
 def main():
     graph=mpimg.imread('firstedit.png')
@@ -152,36 +175,28 @@ def main():
     av = ArticulatedVehicle(plt)
     goal = Node(1046,30,0,0)
     start = Node(200,480,0,0)
-    #nodelist = improved_astar(start,goal,graph)
-    #paint(nodelist, "-b")
+    nodelist = improved_astar(start,goal,graph)
+    paint(nodelist, "-b")
     #paint(nodelist,"xc")
-    previous_t = time.time()
-    now = time.time()
-    dt = now - previous_t 
-    previous_t = now
-    #av.move(20,1,dt)
-    ##526
     i = 0
+    while(i < 400):
+        i+=1
+        if i < 60:
+            vel = 20
+            angle = -i
+        elif i >= 60 and i < 120:
+            vel = 20
+            angle = i-60
+        else:
+            vel = 20
+            angle = 60
+        av.move(vel,angle,0.1)
+        plt.pause(.0001)
     #while(i < 400):
-    #    i+=1
-    #    if i < 60:
-    #        vel = 20#input_float(">>>")
-    #        angle = -i#input_float(">>>")
-    #    elif i >= 60 and i < 120:
-    #        vel = 20
-    #        angle = i-60
-    #    else:
-    #        vel = 20
-    #        angle = 60
-    #    now = time.time()
-    #    dt = now - previous_t 
-    #    previous_t = now
+    #    vel = 20
+    #    angle = input_float(">>>")
     #    av.move(vel,angle,0.1)
     #    plt.pause(.0001)
-    
-    xs,ys = av.move_to_pose(av.startPointX, av.startPointY, 0, av.startPointX+200, av.startPointY+50, 0)
-    plt.plot(xs,ys,"--b")
     plt.show()
 
 main()
-    
